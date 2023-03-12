@@ -46,23 +46,23 @@ for await (let instrument of instruments) {
 		const candles = await getCandles(instrument, interval)
 
 		// run macd
-		for await (let macdSetting of macdSettings) {
-			console.log(
-				`Running macd test ${x.toLocaleString()} of ${psarTests.toLocaleString()}: ${instrument} ${interval}`
-			)
-			x++
-			const test = await macdPromise(
-				candles,
-				macdSetting,
-				instrument,
-				interval
-			)
+		// for await (let macdSetting of macdSettings) {
+		// 	console.log(
+		// 		`Running macd test ${x.toLocaleString()} of ${psarTests.toLocaleString()}: ${instrument} ${interval}`
+		// 	)
+		// 	x++
+		// 	const test = await macdPromise(
+		// 		candles,
+		// 		macdSetting,
+		// 		instrument,
+		// 		interval
+		// 	)
 
-			if (test) {
-				const store = await storeResults(test, "v4_results")
-				console.log("Saved Results")
-			}
-		}
+		// 	if (test) {
+		// 		const store = await storeResults(test, "v4_results")
+		// 		console.log("Saved Results")
+		// 	}
+		// }
 
 		// run psar
 		for await (let macdSetting of macdSettings) {
