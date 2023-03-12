@@ -59,7 +59,7 @@ for await (let instrument of instruments) {
 			)
 
 			if (test) {
-				const storeMacd = await storeResults(test, "v4_results")
+				await storeResults(test, "v4_results")
 				// console.log("Saved Results")
 			}
 		}
@@ -85,10 +85,7 @@ for await (let instrument of instruments) {
 					)
 
 					if (testPsar) {
-						const storePsar = await storeResults(
-							testPsar,
-							"v4_results"
-						)
+						await storeResults(testPsar, "v4_results")
 						// console.log("Saved Results")
 					}
 				}
