@@ -18,66 +18,71 @@ import getCandles from "./lib/getCandles.js"
 dotenv.config()
 
 import getInstruments from "./lib/getInstruments.js"
-import macd from "./lib/macd.js"
-import psar from "./lib/psarMacd.js"
+import { macdPromise } from "./lib/macd.js"
+import { psarPromise } from "./lib/psarMacd.js"
+import { storeResults } from "./lib/results.js"
 
 // get symbols
 const instruments = await getInstruments()
 
 // set timeframes
-const intervals = [1, 3, 5, 15, 60]
+const intervals = [1, 3, 5, 15]
 
+const macdSettings = createMacd()
+const psarSettings = createPsar()
+
+const macdTests = instruments.length * intervals.length * macdSettings.length
+const psarTests = macdTests * psarSettings.length
 // loop through tests
 let x = 1
+
 for await (let instrument of instruments) {
 	for await (let interval of intervals) {
-		// get candles
 		const candles = await getCandles(instrument, interval)
 
-		// console.log(
-		// 	`Test #${x.toLocaleString()} - Instrument: ${instrument}, Interval: ${interval}, Candles: ${
-		// 		candles.length
-		// 	}`
-		// )
-		x++
+		// run macd
+		for await (let macdSetting of macdSettings) {
+			console.log(
+				`Running macd test ${x.toLocaleString()} of ${psarTests.toLocaleString()}: ${instrument} ${interval}`
+			)
+			x++
+			const test = await macdPromise(
+				candles,
+				macdSetting,
+				instrument,
+				interval
+			)
 
-		const macdSettings = createMacd()
-		const psarSettings = createPsar()
-
-		// run macd only
-		let macdCount = 1
-		for await (let setting of macdSettings) {
-			// console.log(
-			// 	`Carrying out macd test ${macdCount.toLocaleString()} of ${macdSettings.length.toLocaleString()}`
-			// )
-			macdCount++
-			const results = await macd(candles, setting, instrument, interval)
+			if (!test) console.log("Not Profitable")
+			else {
+				const store = await storeResults(test, "v4_results")
+				console.log("Saved Results")
+			}
 		}
-		console.log(`Finished macd tests for ${instrument} ${interval}`)
 
-		// run macd & psar
-		let psarCount = 1
-		for await (let psarSetting of psarSettings) {
-			for await (let macdSetting of macdSettings) {
-				// console.log(
-				// 	`Carrying out psar test ${psarCount.toLocaleString()} of ${(
-				// 		macdSettings.length * psarSettings.length
-				// 	).toLocaleString()}`
-				// )
-				psarCount++
-				const testSettings = {
-					psar: psarSetting,
-					macd: macdSetting,
-				}
-
-				const results = await psar(
+		// run psar
+		for await (let macdSetting of macdSettings) {
+			for await (let psarSetting of psarSettings) {
+				console.log(
+					`Running psar test ${x.toLocaleString()} of ${psarTests.toLocaleString()}: ${instrument} ${interval}`
+				)
+				x++
+				const settings = { psar: psarSetting, macd: macdSetting }
+				const testPsar = await psarPromise(
 					candles,
-					testSettings,
+					settings,
 					instrument,
 					interval
 				)
+
+				if (!testPsar) console.log("Not Profitable")
+				else {
+					const store = await storeResults(test, "v4_results")
+					console.log("Saved Results")
+				}
 			}
 		}
-		console.log(`Finished psar tests for ${instrument} ${interval}`)
 	}
 }
+
+console.log("FINISHED")
