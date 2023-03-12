@@ -53,8 +53,7 @@ for await (let instrument of instruments) {
 				interval
 			)
 
-			if (!test) console.log("Not Profitable")
-			else {
+			if (test) {
 				const store = await storeResults(test, "v4_results")
 				console.log("Saved Results")
 			}
@@ -75,10 +74,9 @@ for await (let instrument of instruments) {
 					interval
 				)
 
-				if (!testPsar) console.log("Not Profitable")
-				else {
-					const store = await storeResults(test, "v4_results")
-					console.log("Saved Results")
+				if (testPsar) {
+					const store = await storeResults(testPsar, "v4_results")
+					// console.log("Saved Results")
 				}
 			}
 		}
