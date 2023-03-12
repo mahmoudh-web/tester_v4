@@ -13,7 +13,11 @@
  */
 
 import * as dotenv from "dotenv"
-import { createMacd, createPsar } from "./lib/createSettings.js"
+import {
+	createBollinger,
+	createMacd,
+	createPsar,
+} from "./lib/createSettings.js"
 import getCandles from "./lib/getCandles.js"
 dotenv.config()
 
@@ -30,9 +34,10 @@ const intervals = [1, 3, 5, 15]
 
 const macdSettings = createMacd()
 const psarSettings = createPsar()
+const bollingerSettings = createBollinger()
 
 const macdTests = instruments.length * intervals.length * macdSettings.length
-const psarTests = macdTests * psarSettings.length
+const psarTests = macdTests * psarSettings.length * bollingerSettings.length
 // loop through tests
 let x = 1
 
@@ -62,21 +67,27 @@ for await (let instrument of instruments) {
 		// run psar
 		for await (let macdSetting of macdSettings) {
 			for await (let psarSetting of psarSettings) {
-				console.log(
-					`Running psar test ${x.toLocaleString()} of ${psarTests.toLocaleString()}: ${instrument} ${interval}`
-				)
-				x++
-				const settings = { psar: psarSetting, macd: macdSetting }
-				const testPsar = await psarPromise(
-					candles,
-					settings,
-					instrument,
-					interval
-				)
+				for await (let bollingerSetting of bollingerSettings) {
+					console.log(
+						`Running psar test ${x.toLocaleString()} of ${psarTests.toLocaleString()}: ${instrument} ${interval}`
+					)
+					x++
+					const settings = {
+						psar: psarSetting,
+						macd: macdSetting,
+						bollinger: bollingerSetting,
+					}
+					const testPsar = await psarPromise(
+						candles,
+						settings,
+						instrument,
+						interval
+					)
 
-				if (testPsar) {
-					const store = await storeResults(testPsar, "v4_results")
-					// console.log("Saved Results")
+					if (testPsar) {
+						const store = await storeResults(testPsar, "v4_results")
+						// console.log("Saved Results")
+					}
 				}
 			}
 		}
