@@ -26,6 +26,8 @@ import { macdPromise } from "./lib/macd.js"
 import { psarPromise } from "./lib/psarMacd.js"
 import { storeResults } from "./lib/results.js"
 
+// type of test to run
+const testType = process.env.TYPE
 // get symbols
 const instruments = await getInstruments()
 
@@ -45,48 +47,52 @@ for await (let instrument of instruments) {
 	for await (let interval of intervals) {
 		const candles = await getCandles(instrument, interval)
 
-		// run macd
-		for await (let macdSetting of macdSettings) {
-			console.log(
-				`Running macd test ${x.toLocaleString()} of ${psarTests.toLocaleString()}: ${instrument} ${interval}`
-			)
-			x++
-			const test = await macdPromise(
-				candles,
-				macdSetting,
-				instrument,
-				interval
-			)
+		if (testType === "macd") {
+			// run macd
+			for await (let macdSetting of macdSettings) {
+				console.log(
+					`Running macd test ${x.toLocaleString()} of ${psarTests.toLocaleString()}: ${instrument} ${interval}`
+				)
+				x++
+				const test = await macdPromise(
+					candles,
+					macdSetting,
+					instrument,
+					interval
+				)
 
-			if (test) {
-				await storeResults(test, "v4_results")
-				// console.log("Saved Results")
+				if (test) {
+					await storeResults(test, "v4_results")
+					// console.log("Saved Results")
+				}
 			}
 		}
 
-		// run psar
-		for await (let macdSetting of macdSettings) {
-			for await (let psarSetting of psarSettings) {
-				for await (let bollingerSetting of bollingerSettings) {
-					console.log(
-						`Running psar test ${x.toLocaleString()} of ${psarTests.toLocaleString()}: ${instrument} ${interval}`
-					)
-					x++
-					const settings = {
-						psar: psarSetting,
-						macd: macdSetting,
-						bollinger: bollingerSetting,
-					}
-					const testPsar = await psarPromise(
-						candles,
-						settings,
-						instrument,
-						interval
-					)
+		if (testType === "psar") {
+			// run psar
+			for await (let macdSetting of macdSettings) {
+				for await (let psarSetting of psarSettings) {
+					for await (let bollingerSetting of bollingerSettings) {
+						console.log(
+							`Running psar test ${x.toLocaleString()} of ${psarTests.toLocaleString()}: ${instrument} ${interval}`
+						)
+						x++
+						const settings = {
+							psar: psarSetting,
+							macd: macdSetting,
+							bollinger: bollingerSetting,
+						}
+						const testPsar = await psarPromise(
+							candles,
+							settings,
+							instrument,
+							interval
+						)
 
-					if (testPsar) {
-						await storeResults(testPsar, "v4_results")
-						// console.log("Saved Results")
+						if (testPsar) {
+							await storeResults(testPsar, "v4_results")
+							// console.log("Saved Results")
+						}
 					}
 				}
 			}
