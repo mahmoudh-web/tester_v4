@@ -98,3 +98,4 @@ console.log(`FINISHED ${instrument} ${interval}`)
 await tests.updateOne({ _id: id }, { $set: { complete: true } })
 
 await client.close()
+process.exit(0)
