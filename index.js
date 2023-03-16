@@ -35,26 +35,16 @@ const test = await tests.findOne({ active: false })
 if (!test) process.exit(0)
 
 const id = test._id
-// loop through tests
+await tests.updateOne({ _id: id }, { $set: { active: true } })
+
+// // loop through tests
 let x = 1
 
-await tests.updateOne({ _id: id }, { $set: { active: true } })
 const { instrument, interval } = test
-const report = () => {
-	console.log(
-		`Completed ${x.toLocaleString()} of ${macdTests.toLocaleString()} for ${instrument} - ${interval} `
-	)
-}
-
-setInterval(report, 120000)
 const candles = await getCandles(instrument, interval)
 
 for await (let macdSetting of macdSettings) {
 	for await (let macdSettingTwo of macdSettings) {
-		// run macd
-		// console.log(
-		// 	`Running macd test ${x.toLocaleString()} of ${macdTests.toLocaleString()}: ${instrument} ${interval}`
-		// )
 		const macdOneSettings = {
 			short: macdSetting.short,
 			long: macdSetting.long,
@@ -92,6 +82,13 @@ for await (let macdSetting of macdSettings) {
 				"v4_results"
 			)
 		}
+
+		if (x % 10 === 0) {
+			console.log(
+				`Completed ${x.toLocaleString()} tests of ${macdTests.toLocaleString()} for ${instrument} ${interval}m`
+			)
+		}
+
 		x++
 	}
 }
