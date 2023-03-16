@@ -40,14 +40,21 @@ let x = 1
 
 await tests.updateOne({ _id: id }, { $set: { active: true } })
 const { instrument, interval } = test
+const report = () => {
+	console.log(
+		`Completed ${x.toLocaleString()} of ${macdTests.toLocaleString()} for ${instrument} - ${interval} `
+	)
+}
+
+setInterval(report, 120000)
 const candles = await getCandles(instrument, interval)
 
 for await (let macdSetting of macdSettings) {
 	for await (let macdSettingTwo of macdSettings) {
 		// run macd
-		console.log(
-			`Running macd test ${x.toLocaleString()} of ${macdTests.toLocaleString()}: ${instrument} ${interval}`
-		)
+		// console.log(
+		// 	`Running macd test ${x.toLocaleString()} of ${macdTests.toLocaleString()}: ${instrument} ${interval}`
+		// )
 		const macdOneSettings = {
 			short: macdSetting.short,
 			long: macdSetting.long,
