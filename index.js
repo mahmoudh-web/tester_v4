@@ -13,80 +13,83 @@
  */
 
 import * as dotenv from "dotenv"
-import {
-	createBollinger,
-	createMacd,
-	createPsar,
-} from "./lib/createSettings.js"
-import getCandles from "./lib/getCandles.js"
 dotenv.config()
 
-import getInstruments from "./lib/getInstruments.js"
-import { macdPromise } from "./lib/macd.js"
-import { psarPromise } from "./lib/psarMacd.js"
+import { database } from "./lib/db.js"
+import { createMacd } from "./lib/createSettings.js"
+import getCandles from "./lib/getCandles.js"
 import { storeResults } from "./lib/results.js"
 import macdDifferent from "./tests/macdDifferent.js"
 import macdSame from "./tests/macdSame.js"
 
-// type of test to run
-const testType = process.env.TYPE
-// get symbols
-const instruments = await getInstruments()
-
-// set timeframes
-const intervals = [1, 3, 5, 15]
-
 const macdSettings = createMacd()
-console.log(macdSettings.length)
-const macdTests =
-	instruments.length *
-	intervals.length *
-	macdSettings.length *
-	macdSettings.length
+const macdTests = macdSettings.length * macdSettings.length
+
+// get test to run
+const { client, db } = database()
+await client.connect()
+
+const tests = db.collection("tests")
+const test = await tests.findOne({ active: false })
+
+if (!test) process.exit(0)
+
+const id = test._id
 // loop through tests
 let x = 1
 
-for await (let instrument of instruments) {
-	for await (let interval of intervals) {
-		const candles = await getCandles(instrument, interval)
+await tests.updateOne({ _id: id }, { $set: { active: true } })
+const { instrument, interval } = test
+const candles = await getCandles(instrument, interval)
 
-		for await (let macdSetting of macdSettings) {
-			for await (let macdSettingTwo of macdSettings) {
-				// run macd
-				console.log(
-					`Running macd test ${x.toLocaleString()} of ${macdTests.toLocaleString()}: ${instrument} ${interval}`
-				)
-				const macdOneSettings = {
-					short: macdSetting.short,
-					long: macdSetting.long,
-					signal: macdSetting.signal,
-				}
-				const macdTwoSettings = {
-					short: macdSettingTwo.short,
-					long: macdSettingTwo.long,
-					signal: macdSettingTwo.signal,
-				}
-
-				const macdSingle = await macdSame(candles, macdOneSettings)
-				const macdDifferentTest = await macdDifferent(
-					candles,
-					macdOneSettings,
-					macdTwoSettings
-				)
-
-				if (macdSingle.profit > 0 || macdDifferentTest.profit > 0) {
-					const saveResults = await storeResults(
-						{
-							same: macdSingle,
-							different: macdDifferentTest,
-						},
-						"v4_results"
-					)
-				}
-				x++
-			}
+for await (let macdSetting of macdSettings) {
+	for await (let macdSettingTwo of macdSettings) {
+		// run macd
+		console.log(
+			`Running macd test ${x.toLocaleString()} of ${macdTests.toLocaleString()}: ${instrument} ${interval}`
+		)
+		const macdOneSettings = {
+			short: macdSetting.short,
+			long: macdSetting.long,
+			signal: macdSetting.signal,
 		}
+		const macdTwoSettings = {
+			short: macdSettingTwo.short,
+			long: macdSettingTwo.long,
+			signal: macdSettingTwo.signal,
+		}
+
+		const macdSingle = await macdSame(candles, macdOneSettings)
+		const macdDifferentTest = await macdDifferent(
+			candles,
+			macdOneSettings,
+			macdTwoSettings
+		)
+
+		if (macdSingle.profit > 0 || macdDifferentTest.profit > 0) {
+			const saveResults = await storeResults(
+				{
+					instrument,
+					interval,
+					best_strategy:
+						macdSingle.profit > macdDifferentTest.profit
+							? "Same"
+							: "Different",
+					best_profit:
+						macdSingle.profit > macdDifferentTest.profit
+							? macdSingle.profit
+							: macdDifferentTest.profit,
+					same: macdSingle,
+					different: macdDifferentTest,
+				},
+				"v4_results"
+			)
+		}
+		x++
 	}
 }
 
-console.log("FINISHED")
+console.log(`FINISHED ${instrument} ${interval}`)
+await tests.updateOne({ _id: id }, { $set: { complete: true } })
+
+await client.close()
