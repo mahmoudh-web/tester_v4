@@ -45,6 +45,8 @@ const candles = await getCandles(instrument, interval)
 
 for await (let macdSetting of macdSettings) {
 	for await (let macdSettingTwo of macdSettings) {
+		console.log(`Running tests for ${instrument} ${interval}`)
+
 		const macdOneSettings = {
 			short: macdSetting.short,
 			long: macdSetting.long,
@@ -83,7 +85,7 @@ for await (let macdSetting of macdSettings) {
 			)
 		}
 
-		if (x % 10 === 0) {
+		if (x % 1000 === 0) {
 			console.log(
 				`Completed ${x.toLocaleString()} tests of ${macdTests.toLocaleString()} for ${instrument} ${interval}m`
 			)
