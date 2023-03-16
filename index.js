@@ -25,6 +25,8 @@ import getInstruments from "./lib/getInstruments.js"
 import { macdPromise } from "./lib/macd.js"
 import { psarPromise } from "./lib/psarMacd.js"
 import { storeResults } from "./lib/results.js"
+import macdDifferent from "./tests/macdDifferent.js"
+import macdSame from "./tests/macdSame.js"
 
 // type of test to run
 const testType = process.env.TYPE
@@ -35,11 +37,12 @@ const instruments = await getInstruments()
 const intervals = [1, 3, 5, 15]
 
 const macdSettings = createMacd()
-const psarSettings = createPsar()
-const bollingerSettings = createBollinger()
-
-const macdTests = instruments.length * intervals.length * macdSettings.length
-const psarTests = macdTests * psarSettings.length * bollingerSettings.length
+console.log(macdSettings.length)
+const macdTests =
+	instruments.length *
+	intervals.length *
+	macdSettings.length *
+	macdSettings.length
 // loop through tests
 let x = 1
 
@@ -47,54 +50,40 @@ for await (let instrument of instruments) {
 	for await (let interval of intervals) {
 		const candles = await getCandles(instrument, interval)
 
-		if (testType === "macd") {
-			// run macd
-			for await (let macdSetting of macdSettings) {
+		for await (let macdSetting of macdSettings) {
+			for await (let macdSettingTwo of macdSettings) {
+				// run macd
 				console.log(
-					`Running macd test ${x.toLocaleString()} of ${psarTests.toLocaleString()}: ${instrument} ${interval}`
+					`Running macd test ${x.toLocaleString()} of ${macdTests.toLocaleString()}: ${instrument} ${interval}`
 				)
-				x++
-				const test = await macdPromise(
+				const macdOneSettings = {
+					short: macdSetting.short,
+					long: macdSetting.long,
+					signal: macdSetting.signal,
+				}
+				const macdTwoSettings = {
+					short: macdSettingTwo.short,
+					long: macdSettingTwo.long,
+					signal: macdSettingTwo.signal,
+				}
+
+				const macdSingle = await macdSame(candles, macdOneSettings)
+				const macdDifferentTest = await macdDifferent(
 					candles,
-					macdSetting,
-					instrument,
-					interval
+					macdOneSettings,
+					macdTwoSettings
 				)
 
-				if (test) {
-					await storeResults(test, "v4_results")
-					// console.log("Saved Results")
+				if (macdSingle.profit > 0 || macdDifferentTest.profit > 0) {
+					const saveResults = await storeResults(
+						{
+							same: macdSingle,
+							different: macdDifferentTest,
+						},
+						"v4_results"
+					)
 				}
-			}
-		}
-
-		if (testType === "psar") {
-			// run psar
-			for await (let macdSetting of macdSettings) {
-				for await (let psarSetting of psarSettings) {
-					for await (let bollingerSetting of bollingerSettings) {
-						console.log(
-							`Running psar test ${x.toLocaleString()} of ${psarTests.toLocaleString()}: ${instrument} ${interval}`
-						)
-						x++
-						const settings = {
-							psar: psarSetting,
-							macd: macdSetting,
-							bollinger: bollingerSetting,
-						}
-						const testPsar = await psarPromise(
-							candles,
-							settings,
-							instrument,
-							interval
-						)
-
-						if (testPsar) {
-							await storeResults(testPsar, "v4_results")
-							// console.log("Saved Results")
-						}
-					}
-				}
+				x++
 			}
 		}
 	}
