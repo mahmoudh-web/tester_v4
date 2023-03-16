@@ -42,11 +42,10 @@ let x = 1
 
 const { instrument, interval } = test
 const candles = await getCandles(instrument, interval)
+console.log(`Running tests for ${instrument} ${interval}`)
 
 for await (let macdSetting of macdSettings) {
 	for await (let macdSettingTwo of macdSettings) {
-		console.log(`Running tests for ${instrument} ${interval}`)
-
 		const macdOneSettings = {
 			short: macdSetting.short,
 			long: macdSetting.long,
