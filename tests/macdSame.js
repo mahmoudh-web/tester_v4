@@ -30,7 +30,7 @@ const macdSame = async (candles, settings) => {
 		} else {
 			// look for buy
 			if (buy(candle)) {
-				usdt_balance -= 10
+				usdt_balance -= 15
 				const amount = buyAmount(candle.open, 10)
 				token_balance += amount
 			}
