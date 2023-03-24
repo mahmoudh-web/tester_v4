@@ -35,7 +35,7 @@ const test = await tests.findOne({ active: false })
 if (!test) process.exit(0)
 
 const id = test._id
-// await tests.updateOne({ _id: id }, { $set: { active: true } })
+await tests.updateOne({ _id: id }, { $set: { active: true } })
 
 // // loop through tests
 let x = 1
@@ -167,8 +167,8 @@ for await (let fast_macd of fast_macds) {
 // 	}
 // }
 
-// console.log(`FINISHED ${instrument} ${interval}`)
-// await tests.updateOne({ _id: id }, { $set: { complete: true } })
+console.log(`FINISHED ${instrument} ${interval}`)
+await tests.updateOne({ _id: id }, { $set: { complete: true } })
 
 await client.close()
 process.exit(0)
