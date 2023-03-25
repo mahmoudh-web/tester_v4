@@ -74,7 +74,7 @@ for await (let fast_macd of fast_macds) {
 						}
 						// run test
 						const test = await macdBollinger(candles, settings)
-						console.log(test)
+						// console.log(test)
 						if (test.profit > 0) {
 							const {
 								usdt_balance,
