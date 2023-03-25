@@ -35,7 +35,7 @@ const test = await tests.findOne({ active: false })
 if (!test) process.exit(0)
 
 const id = test._id
-// await tests.updateOne({ _id: id }, { $set: { active: true } })
+await tests.updateOne({ _id: id }, { $set: { active: true } })
 
 // // loop through tests
 let x = 1
@@ -48,9 +48,9 @@ const slow_bbands = createBollinger()
 const stochs = createStoch()
 
 // get instrument, interval and candles
-// const { instrument, interval } = test
-const instrument = "ACHUSDT"
-const interval = 1
+const { instrument, interval } = test
+// const instrument = "ACHUSDT"
+// const interval = 1
 
 const candles = await getCandles(instrument, interval)
 console.log(`Running tests for ${instrument} ${interval}`)
