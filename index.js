@@ -37,9 +37,9 @@ await tests.updateOne({ _id: id }, { $set: { active: true } })
 let x = 1
 
 // get settings variables for tests
-const fast_macds = createMacd(20, 30, 20)
-const slow_macds = createMacd(75, 100, 75)
-const stochs = createStoch(30, 20, 20)
+const fast_macds = [{ short: 13, long: 21, signal: 9 }] //createMacd(20, 30, 20)
+const slow_macds = [{ short: 34, long: 144, signal: 9 }] //createMacd(75, 100, 75)
+const stochs = [{ k: 7, d: 3, smoothing: 3 }] //createStoch(30, 20, 20)
 
 // get instrument, interval and candles
 const { instrument, interval } = test
