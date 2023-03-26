@@ -16,10 +16,14 @@ import * as dotenv from "dotenv"
 dotenv.config()
 
 import { database } from "./lib/db.js"
-import { createMacd, createStoch } from "./lib/createSettings.js"
+import {
+	createBollinger,
+	createMacd,
+	createStoch,
+} from "./lib/createSettings.js"
 import getCandles from "./lib/getCandles.js"
 import { storeResults } from "./lib/results.js"
-import macdStochScalp from "./tests/macdStochScalp.js"
+import macdBollinger from "./tests/macdBollinger.js"
 
 // get test to run
 const { client, db } = database()
@@ -31,15 +35,17 @@ const test = await tests.findOne({ active: false })
 if (!test) process.exit(0)
 
 const id = test._id
-// await tests.updateOne({ _id: id }, { $set: { active: true } })
+await tests.updateOne({ _id: id }, { $set: { active: true } })
 
 // // loop through tests
 let x = 1
 
 // get settings variables for tests
-const fast_macds = createMacd(20, 30, 20)
-const slow_macds = createMacd(75, 100, 75)
-const stochs = createStoch(30, 20, 20)
+const fast_macds = createMacd()
+const slow_macds = createMacd()
+const fast_bbands = createBollinger()
+const slow_bbands = createBollinger()
+const stochs = createStoch()
 
 // get instrument, interval and candles
 const { instrument, interval } = test
@@ -51,51 +57,63 @@ console.log(`Running tests for ${instrument} ${interval}`)
 
 for await (let fast_macd of fast_macds) {
 	for await (let slow_macd of slow_macds) {
-		for await (let stoch of stochs) {
-			if (fast_macd.long < slow_macd.long) {
-				const settings = {
-					fast_macd,
-					slow_macd,
-					stoch,
-				}
-				// run test
-				const test = await macdStochScalp(candles, settings)
-				// console.log(test)
-				if (test.profit > 0) {
-					const {
-						usdt_balance,
-						token_balance,
-						winning_trades,
-						losing_trades,
-						win_rate,
-						lose_rate,
-						profit,
-					} = test
-
-					await storeResults(
-						{
-							instrument,
-							interval,
-							usdt_balance,
-							token_balance,
-							winning_trades,
-							losing_trades,
-							win_rate,
-							lose_rate,
-							profit,
+		for await (let fast_bband of fast_bbands) {
+			for await (let slow_bband of slow_bbands) {
+				for await (let stoch of stochs) {
+					if (
+						fast_macd.short < slow_macd.short &&
+						fast_bband.period < slow_bband.period
+					) {
+						const settings = {
 							fast_macd,
 							slow_macd,
+							fast_bband,
+							slow_bband,
 							stoch,
-						},
-						"v4_results"
-					)
-				}
+						}
+						// run test
+						const test = await macdBollinger(candles, settings)
+						// console.log(test)
+						if (test.profit > 0) {
+							const {
+								usdt_balance,
+								token_balance,
+								winning_trades,
+								losing_trades,
+								win_rate,
+								lose_rate,
+								profit,
+							} = test
 
-				console.log(
-					`Finished test ${x} for ${instrument} ${interval}, profit: ${test.profit}`
-				)
-				x++
-				// allTests.push(settings)
+							await storeResults(
+								{
+									instrument,
+									interval,
+									usdt_balance,
+									token_balance,
+									winning_trades,
+									losing_trades,
+									win_rate,
+									lose_rate,
+									profit,
+									fast_macd,
+									slow_macd,
+									fast_bband,
+									slow_bband,
+									stoch,
+									test,
+								},
+								"v4_results"
+							)
+						}
+
+						console.log(
+							`Finished test ${x} for ${instrument} ${interval}, profit: ${test.profit}`
+						)
+						x++
+						// allTests.push(settings)
+					}
+				}
 			}
 		}
 	}
