@@ -31,7 +31,7 @@ const test = await tests.findOne({ active: false })
 if (!test) process.exit(0)
 
 const id = test._id
-// await tests.updateOne({ _id: id }, { $set: { active: true } })
+await tests.updateOne({ _id: id }, { $set: { active: true } })
 
 // // loop through tests
 let x = 1
