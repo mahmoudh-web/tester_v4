@@ -91,9 +91,11 @@ for await (let fast_macd of fast_macds) {
 					)
 				}
 
-				console.log(
-					`Finished test ${x} for ${instrument} ${interval}, profit: ${test.profit}`
-				)
+				if (x % 100000 === 0) {
+					console.log(
+						`Finished test ${x} for ${instrument} ${interval}, profit: ${test.profit}`
+					)
+				}
 				x++
 				// allTests.push(settings)
 			}
