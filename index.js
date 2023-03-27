@@ -93,7 +93,9 @@ for await (let fast_macd of fast_macds) {
 
 				if (x % 100000 === 0) {
 					console.log(
-						`Finished test ${x} for ${instrument} ${interval}, profit: ${test.profit}`
+						`Finished test ${x.toLocaleString()} for ${instrument} ${interval}, profit: ${
+							test.profit
+						}`
 					)
 				}
 				x++
