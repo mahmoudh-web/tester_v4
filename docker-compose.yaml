@@ -13,56 +13,78 @@ services:
         restart: always
         environment:
             DATABASE_URL: mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+        networks:
+            network1: {}
     tester_3:
         image: tester:1.0
         restart: always
         environment:
             DATABASE_URL: mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+        networks:
+            network1: {}
     tester_4:
         image: tester:1.0
         restart: always
         environment:
             DATABASE_URL: mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+        networks:
+            network1: {}
     tester_5:
         image: tester:1.0
         restart: always
         environment:
             DATABASE_URL: mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+        networks:
+            network1: {}
     tester_6:
         image: tester:1.0
         restart: always
         environment:
             DATABASE_URL: mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+        networks:
+            network1: {}
     tester_7:
         image: tester:1.0
         restart: always
         environment:
             DATABASE_URL: mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+        networks:
+            network1: {}
     tester_8:
         image: tester:1.0
         restart: always
         environment:
             DATABASE_URL: mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+        networks:
+            network1: {}
     tester_9:
         image: tester:1.0
         restart: always
         environment:
             DATABASE_URL: mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+        networks:
+            network1: {}
     tester_10:
         image: tester:1.0
         restart: always
         environment:
             DATABASE_URL: mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+        networks:
+            network1: {}
     tester_11:
         image: tester:1.0
         restart: always
         environment:
             DATABASE_URL: mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+        networks:
+            network1: {}
     tester_12:
         image: tester:1.0
         restart: always
         environment:
             DATABASE_URL: mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+        networks:
+            network1: {}
 
 networks:
     network1:
