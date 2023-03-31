@@ -1,0 +1,49 @@
+services:
+    tester_1:
+        image: tester:1.0
+        restart: always
+        environment: DATABASE_URL=mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+    tester_2:
+        image: tester:1.0
+        restart: always
+        environment: DATABASE_URL=mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+    tester_3:
+        image: tester:1.0
+        restart: always
+        environment: DATABASE_URL=mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+    tester_4:
+        image: tester:1.0
+        restart: always
+        environment: DATABASE_URL=mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+    tester_5:
+        image: tester:1.0
+        restart: always
+        environment: DATABASE_URL=mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+    tester_6:
+        image: tester:1.0
+        restart: always
+        environment: DATABASE_URL=mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+    tester_7:
+        image: tester:1.0
+        restart: always
+        environment: DATABASE_URL=mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+    tester_8:
+        image: tester:1.0
+        restart: always
+        environment: DATABASE_URL=mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+    tester_9:
+        image: tester:1.0
+        restart: always
+        environment: DATABASE_URL=mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+    tester_10:
+        image: tester:1.0
+        restart: always
+        environment: DATABASE_URL=mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+    tester_11:
+        image: tester:1.0
+        restart: always
+        environment: DATABASE_URL=mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+    tester_12:
+        image: tester:1.0
+        restart: always
+        environment: DATABASE_URL=mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
