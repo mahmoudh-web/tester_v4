@@ -6,6 +6,8 @@ services:
         restart: always
         environment:
             DATABASE_URL: mongodb://binance_user:msmhassan1@bot_mongo:27017/binance
+        networks:
+            network1: {}
     tester_2:
         image: tester:1.0
         restart: always
