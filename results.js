@@ -18,8 +18,12 @@ for await (let instrument of instruments) {
 
 	const results = []
 	await pointer.forEach(res => results.push(res))
-	if (results.length)
+	if (results.length) {
 		console.log(`${instrument}: $${results[0].profit.toFixed(2)}`)
+		// console.log(JSON.stringify(results[0].fast_macd, null, 2))
+		// console.log(JSON.stringify(results[0].slow_macd, null, 2))
+		// console.log(JSON.stringify(results[0].stoch, null, 2))
+	}
 }
 
 await client.close()
